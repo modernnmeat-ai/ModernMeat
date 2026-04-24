@@ -31,6 +31,10 @@ const saveDB = (data) => fs.writeJson(DB_FILE, data, { spaces: 2 });
 
 // --- ROUTES ---
 
+app.get('/', (req, res) => {
+  res.send('ModernMeat Backend is running!');
+});
+
 // USERS
 app.get('/api/users', async (req, res) => {
   const db = await getDB();
