@@ -1,0 +1,94 @@
+{
+  "users": [
+    {
+      "id": "1777025857880",
+      "firstName": "Buyurtmachi",
+      "lastName": "demo",
+      "phone": "+998500000000",
+      "password": "12345678",
+      "registeredAt": "2026-04-24T10:17:37.880Z",
+      "isAdmin": false
+    },
+    {
+      "id": "1777026186757",
+      "firstName": "Demo",
+      "lastName": "Test",
+      "phone": "+998500000001",
+      "password": "12345678",
+      "registeredAt": "2026-04-24T10:23:06.757Z",
+      "isAdmin": false
+    },
+    {
+      "id": "1777026325030",
+      "firstName": "Islom",
+      "lastName": "test",
+      "phone": "+998500000002",
+      "password": "12345678",
+      "registeredAt": "2026-04-24T10:25:25.030Z",
+      "isAdmin": false
+    },
+    {
+      "id": "1777028711917",
+      "firstName": "Test",
+      "lastName": "Test",
+      "phone": "+998977777777",
+      "password": "12345678",
+      "registeredAt": "2026-04-24T11:05:11.917Z",
+      "isAdmin": false
+    }
+  ],
+  "inventory": [
+    {
+      "type": "chiqim",
+      "category": "mol",
+      "weight": 13,
+      "pricePerKg": 150000,
+      "note": "",
+      "date": "2026-04-24",
+      "id": "inv-1777028910986",
+      "createdAt": "2026-04-24T11:08:30.986Z"
+    },
+    {
+      "type": "chiqim",
+      "category": "mol",
+      "weight": 300,
+      "pricePerKg": 150000,
+      "note": "bugun 150 kg mol goshti sotdik",
+      "date": "2026-04-24",
+      "id": "inv-1777028837855",
+      "createdAt": "2026-04-24T11:07:17.855Z"
+    },
+    {
+      "type": "kirim",
+      "category": "mol",
+      "weight": 50,
+      "pricePerKg": 130000,
+      "note": "50 kg mol goshti keldi bugun",
+      "date": "2026-04-24",
+      "id": "inv-1777028813586",
+      "createdAt": "2026-04-24T11:06:53.586Z"
+    },
+    {
+      "type": "chiqim",
+      "category": "mol",
+      "weight": 100,
+      "pricePerKg": 130000,
+      "note": "Bugungi chiqim",
+      "date": "2026-04-24",
+      "id": "inv-1777026430034",
+      "createdAt": "2026-04-24T10:27:10.034Z"
+    },
+    {
+      "type": "kirim",
+      "category": "mol",
+      "weight": 500,
+      "pricePerKg": 100000,
+      "note": "optom gosht keldi",
+      "date": "2026-04-24",
+      "id": "inv-1777026409338",
+      "createdAt": "2026-04-24T10:26:49.338Z"
+    }
+  ],
+  "orders": [],
+  "products": []
+}
