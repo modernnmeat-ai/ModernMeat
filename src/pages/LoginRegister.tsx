@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Flame, Phone, User, ArrowRight, CheckCircle, ChevronLeft, Eye, EyeOff, Lock } from 'lucide-react';
+import { Flame, Phone, User, ArrowRight, CheckCircle, ChevronLeft, Eye, EyeOff, Lock, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -115,6 +115,9 @@ export function LoginRegister() {
         </div>
 
         <div className="auth-card">
+          <button className="auth-close-btn" onClick={() => navigate('/')} title="Chiqish">
+            <X size={24} />
+          </button>
           {mode !== 'choose' && (
             <button className="auth-back-btn" onClick={goBack}>
               <ChevronLeft size={20} /> Orqaga

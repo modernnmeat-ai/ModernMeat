@@ -732,6 +732,19 @@ h1, h2, h3, h4, h5, h6 {
   .market-title {
     font-size: 2rem;
   }
+  .logo {
+    font-size: 1.2rem;
+    gap: 6px;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+  .cart-btn {
+    padding: 0 10px !important;
+  }
+  .theme-toggle-btn {
+    padding: 4px !important;
+  }
   .market-header-premium {
     padding: 120px 0 60px;
   }
@@ -741,12 +754,6 @@ h1, h2, h3, h4, h5, h6 {
   }
   .hero-actions .btn {
     width: 100%;
-  }
-  .nav-actions {
-    gap: 10px;
-  }
-  .cart-btn {
-    padding: 0 12px !important;
   }
   .product-image-container {
     height: 180px;
@@ -767,12 +774,23 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.8rem;
   }
   .logo {
-    font-size: 1.2rem;
-    gap: 6px;
+    font-size: 1.1rem;
+    gap: 4px;
+  }
+  .nav-actions {
+    gap: 5px;
+  }
+  .theme-toggle-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .mobile-menu-btn svg {
+    width: 22px;
+    height: 22px;
   }
   .logo svg {
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
   }
   .product-title {
     font-size: 1.1rem;
@@ -1070,6 +1088,28 @@ h1, h2, h3, h4, h5, h6 {
   padding: 36px;
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
+  position: relative;
+}
+.auth-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  z-index: 10;
+}
+.auth-close-btn:hover {
+  color: var(--primary-red);
+  background: rgba(255,255,255,0.05);
+  transform: rotate(90deg);
 }
 .auth-back-btn {
   display: inline-flex;
@@ -2019,4 +2059,49 @@ h1, h2, h3, h4, h5, h6 {
 .status-select:hover {
   filter: brightness(1.2);
   transform: translateY(-1px);
+}
+
+/* Pull to Refresh Styles */
+.pull-to-refresh-container {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.pull-to-refresh-indicator {
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.refresh-icon-wrapper {
+  background: var(--gold);
+  color: #000;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.refresh-icon-wrapper.refreshing svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.pull-to-refresh-content {
+  will-change: transform;
 }

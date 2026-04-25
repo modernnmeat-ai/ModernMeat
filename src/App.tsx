@@ -9,6 +9,7 @@ import { useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { Cart } from './components/Cart';
+import { PullToRefresh } from './components/PullToRefresh';
 import { Home } from './pages/Home';
 import { Market } from './pages/Market';
 import { LoginRegister } from './pages/LoginRegister';
@@ -23,27 +24,29 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginRegister />} />
-      <Route path="/admin" element={
-        <AdminRoute>
-          <AdminPanel />
-        </AdminRoute>
-      } />
-      <Route path="/*" element={
-        <>
-          <Navbar />
-          <Cart />
-          <main style={{ minHeight: '80vh' }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/market" element={<Market />} />
-            </Routes>
-          </main>
-          <Footer />
-        </>
-      } />
-    </Routes>
+    <PullToRefresh>
+      <Routes>
+        <Route path="/login" element={<LoginRegister />} />
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminPanel />
+          </AdminRoute>
+        } />
+        <Route path="/*" element={
+          <>
+            <Navbar />
+            <Cart />
+            <main style={{ minHeight: '80vh' }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/market" element={<Market />} />
+              </Routes>
+            </main>
+            <Footer />
+          </>
+        } />
+      </Routes>
+    </PullToRefresh>
   );
 }
 
