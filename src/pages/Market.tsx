@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ShoppingCart, LayoutGrid, Beef, Flame } from 'lucide-react';
+import { ShoppingCart, LayoutGrid, Beef } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useProducts } from '../context/ProductContext';
 
