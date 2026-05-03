@@ -5,7 +5,7 @@ import { useProducts } from '../context/ProductContext';
 
 export function Market() {
   const { addToCart } = useCart();
-  const { products } = useProducts();
+  const { products, categories } = useProducts();
   const [filter, setFilter] = useState('barchasi');
   const [animateGrid, setAnimateGrid] = useState(false);
   
@@ -47,16 +47,13 @@ export function Market() {
                     <LayoutGrid size={18} /> <span>Barcha Mahsulotlar</span>
                   </button>
                 </li>
-                <li>
-                  <button className={filter === 'mol' ? 'active' : ''} onClick={() => handleFilterChange('mol')}>
-                    <Beef size={18} /> <span>Mol Go'shti</span>
-                  </button>
-                </li>
-                <li>
-                  <button className={filter === 'qoy' ? 'active' : ''} onClick={() => handleFilterChange('qoy')}>
-                    <Flame size={18} /> <span>Qo'y Go'shti</span>
-                  </button>
-                </li>
+                {categories.map(cat => (
+                  <li key={cat.id}>
+                    <button className={filter === cat.id ? 'active' : ''} onClick={() => handleFilterChange(cat.id)}>
+                      <Beef size={18} /> <span>{cat.name}</span>
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           </aside>

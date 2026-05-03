@@ -23,7 +23,7 @@ export function AdminPanel() {
   const { user, logout, getAllUsers } = useAuth();
   const { getStock } = useInventory();
   const { orders, updateOrderStatus, deleteOrder } = useOrders();
-  const { products, addProduct, updateProduct, deleteProduct } = useProducts();
+  const { products, categories, addProduct, updateProduct, deleteProduct, addCategory, deleteCategory } = useProducts();
   const { items } = useCart();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
@@ -31,9 +31,14 @@ export function AdminPanel() {
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
-    name: '', price: 0, category: 'mol', image: '/images/wagyu.png', description: ''
+    name: '', price: 0, category: '', image: '/images/wagyu.png', description: ''
   });
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [notification, setNotification] = useState('');
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [newAdmin, setNewAdmin] = useState({ firstName: '', lastName: '', phone: '', password: '' });
+  const { toggleAdminStatus, createAdmin } = useAuth();
 
   const registeredUsers = getAllUsers();
 
@@ -69,13 +74,47 @@ export function AdminPanel() {
 
   const handleAddProduct = () => {
     if (!newProduct.name || !newProduct.price) return;
-    addProduct(newProduct);
+    const catToUse = newProduct.category || categories[0]?.id || '';
+    addProduct({ ...newProduct, category: catToUse });
     setShowAddModal(false);
-    setNewProduct({ name: '', price: 0, category: 'mol', image: '/images/wagyu.png', description: '' });
+    setNewProduct({ name: '', price: 0, category: '', image: '/images/wagyu.png', description: '' });
     showNotif('Yangi mahsulot qo\'shildi');
   };
 
-  const stockData = getStock();
+  const handleAddCategory = () => {
+    if (!newCategoryName.trim()) return;
+    addCategory(newCategoryName);
+    setNewCategoryName('');
+    setShowCategoryModal(false);
+    showNotif("Yangi kategoriya qo'shildi");
+  };
+
+  const handleAddAdmin = async () => {
+    if (!newAdmin.firstName || !newAdmin.phone || !newAdmin.password) {
+      showNotif('Iltimos, barcha maydonlarni to\'ldiring');
+      return;
+    }
+    const res = await createAdmin(newAdmin.firstName, newAdmin.lastName, newAdmin.phone, newAdmin.password);
+    if (res.success) {
+      setShowUserModal(false);
+      setNewAdmin({ firstName: '', lastName: '', phone: '', password: '' });
+      showNotif(res.message);
+    } else {
+      showNotif(res.message);
+    }
+  };
+
+  const handleToggleAdmin = async (userId: string) => {
+    if (userId === 'super-admin') return; // Cannot revoke super admin
+    const success = await toggleAdminStatus(userId);
+    if (success) {
+      showNotif('Foydalanuvchi roli o\'zgartirildi');
+    } else {
+      showNotif('Xatolik yuz berdi');
+    }
+  };
+
+  const stockData = getStock(categories);
   const omborRemaining = stockData.reduce((s, x) => s + x.remaining, 0);
 
   const stats = [
@@ -238,10 +277,26 @@ export function AdminPanel() {
         {activeTab === 'products' && (
           <div className="admin-content">
             <div className="admin-actions-bar">
-              <span className="admin-count">{products.length} ta mahsulot</span>
-              <button className="admin-add-btn" onClick={() => setShowAddModal(true)}>
-                <Plus size={18} /> Yangi Mahsulot
-              </button>
+              <span className="admin-count">{products.length} ta mahsulot, {categories.length} ta toifa</span>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="admin-add-btn" style={{ background: '#4CAF50' }} onClick={() => setShowCategoryModal(true)}>
+                  <Plus size={18} /> Yangi Kategoriya
+                </button>
+                <button className="admin-add-btn" onClick={() => setShowAddModal(true)}>
+                  <Plus size={18} /> Yangi Mahsulot
+                </button>
+              </div>
+            </div>
+
+            <div className="admin-categories-list" style={{ display: 'flex', gap: '10px', overflowX: 'auto', marginBottom: '20px', paddingBottom: '10px' }}>
+              {categories.map(c => (
+                <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '6px 12px', borderRadius: '20px', fontSize: '0.9rem' }}>
+                  <span>{c.name}</span>
+                  <button onClick={() => { if(window.confirm('Kategoriyani o\'chirmoqchimisiz?')) deleteCategory(c.id); }} style={{ background: 'none', border: 'none', color: '#f44336', cursor: 'pointer', padding: '2px' }}>
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
             </div>
 
             <div className="admin-products-grid">
@@ -249,7 +304,7 @@ export function AdminPanel() {
                 <div className="admin-product-card" key={p.id}>
                   <div className="admin-product-img-wrap">
                     <img src={p.image} alt={p.name} />
-                    <span className="admin-product-cat">{p.category === 'mol' ? 'Mol' : "Qo'y"}</span>
+                    <span className="admin-product-cat">{categories.find(c => c.id === p.category)?.name || p.category}</span>
                   </div>
                   <div className="admin-product-info">
                     <h4>{p.name}</h4>
@@ -275,6 +330,9 @@ export function AdminPanel() {
           <div className="admin-content">
             <div className="admin-actions-bar">
               <span className="admin-count">{registeredUsers.length} ta foydalanuvchi</span>
+              <button className="admin-add-btn" onClick={() => setShowUserModal(true)}>
+                <Plus size={18} /> Yangi Admin
+              </button>
             </div>
             {registeredUsers.length === 0 ? (
               <div className="admin-empty-large">Hali hech kim ro'yxatdan o'tmagan</div>
@@ -294,10 +352,27 @@ export function AdminPanel() {
                     {registeredUsers.map((u, i) => (
                       <tr key={u.id}>
                         <td>{i + 1}</td>
-                        <td><strong>{u.firstName} {u.lastName}</strong></td>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <strong>{u.firstName} {u.lastName}</strong>
+                            {u.isAdmin && <span className="status-badge status-processing" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>Admin</span>}
+                            {u.isSuperAdmin && <span className="status-badge status-completed" style={{ fontSize: '0.7rem', padding: '2px 6px' }}>Super</span>}
+                          </div>
+                        </td>
                         <td>{u.phone}</td>
                         <td>{new Date(u.registeredAt || '').toLocaleDateString('uz-UZ')}</td>
-                        <td><span className="status-badge status-completed">Faol</span></td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button 
+                              className={`admin-edit-btn ${u.isAdmin ? 'active' : ''}`}
+                              onClick={() => handleToggleAdmin(u.id)}
+                              disabled={u.isSuperAdmin}
+                              style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                            >
+                              {u.isAdmin ? 'Adminlikni olish' : 'Admin qilish'}
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -393,8 +468,9 @@ export function AdminPanel() {
               <div className="modal-field">
                 <label>Kategoriya</label>
                 <select value={editProduct.category} onChange={e => setEditProduct({ ...editProduct, category: e.target.value })}>
-                  <option value="mol">Mol Go'shti</option>
-                  <option value="qoy">Qo'y Go'shti</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="modal-field">
@@ -441,9 +517,10 @@ export function AdminPanel() {
               </div>
               <div className="modal-field">
                 <label>Kategoriya</label>
-                <select value={newProduct.category} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}>
-                  <option value="mol">Mol Go'shti</option>
-                  <option value="qoy">Qo'y Go'shti</option>
+                <select value={newProduct.category || categories[0]?.id || ''} onChange={e => setNewProduct({ ...newProduct, category: e.target.value })}>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="modal-field">
@@ -466,6 +543,61 @@ export function AdminPanel() {
             <div className="admin-modal-footer">
               <button className="modal-cancel" onClick={() => setShowAddModal(false)}><XCircle size={16} /> Bekor</button>
               <button className="modal-save" onClick={handleAddProduct}><Plus size={16} /> Qo'shish</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Category Modal */}
+      {showCategoryModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowCategoryModal(false)}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3>Yangi Kategoriya Qo'shish</h3>
+              <button onClick={() => setShowCategoryModal(false)}><X size={20} /></button>
+            </div>
+            <div className="admin-modal-body">
+              <div className="modal-field">
+                <label>Kategoriya Nomi</label>
+                <input placeholder="Masalan: Tovuq Go'shti, Baliq..." value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} />
+              </div>
+            </div>
+            <div className="admin-modal-footer">
+              <button className="modal-cancel" onClick={() => setShowCategoryModal(false)}><XCircle size={16} /> Bekor</button>
+              <button className="modal-save" onClick={handleAddCategory}><Plus size={16} /> Qo'shish</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Add Admin Modal */}
+      {showUserModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowUserModal(false)}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header">
+              <h3>Yangi Admin Qo'shish</h3>
+              <button onClick={() => setShowUserModal(false)}><X size={20} /></button>
+            </div>
+            <div className="admin-modal-body">
+              <div className="modal-field">
+                <label>Ism</label>
+                <input placeholder="Ism" value={newAdmin.firstName} onChange={e => setNewAdmin({ ...newAdmin, firstName: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label>Familiya</label>
+                <input placeholder="Familiya" value={newAdmin.lastName} onChange={e => setNewAdmin({ ...newAdmin, lastName: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label>Telefon</label>
+                <input placeholder="+998" value={newAdmin.phone} onChange={e => setNewAdmin({ ...newAdmin, phone: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label>Parol</label>
+                <input type="password" placeholder="Parol" value={newAdmin.password} onChange={e => setNewAdmin({ ...newAdmin, password: e.target.value })} />
+              </div>
+            </div>
+            <div className="admin-modal-footer">
+              <button className="modal-cancel" onClick={() => setShowUserModal(false)}><XCircle size={16} /> Bekor</button>
+              <button className="modal-save" onClick={handleAddAdmin}><Plus size={16} /> Qo'shish</button>
             </div>
           </div>
         </div>

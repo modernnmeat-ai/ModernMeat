@@ -35,6 +35,15 @@
       "password": "12345678",
       "registeredAt": "2026-04-24T11:05:11.917Z",
       "isAdmin": false
+    },
+    {
+      "id": "1777793229229",
+      "firstName": "ADMIN",
+      "lastName": "TEST",
+      "phone": "+998999999999",
+      "password": "1234567890",
+      "registeredAt": "2026-05-03T07:27:09.229Z",
+      "isAdmin": false
     }
   ],
   "inventory": [
@@ -89,6 +98,83 @@
       "createdAt": "2026-04-24T10:26:49.338Z"
     }
   ],
-  "orders": [],
-  "products": []
+  "orders": [
+    {
+      "userId": "super-admin",
+      "userName": "Abdulloh Solihov",
+      "userPhone": "+998500089912",
+      "items": [
+        {
+          "id": "p1777793201540",
+          "name": "WQ",
+          "price": 1,
+          "quantity": 4
+        }
+      ],
+      "totalPrice": 4,
+      "paymentMethod": "naqt",
+      "hasScreenshot": false,
+      "id": "ORD-1777793754044",
+      "createdAt": "2026-05-03T07:35:54.044Z",
+      "status": "pending"
+    },
+    {
+      "userId": "super-admin",
+      "userName": "Abdulloh Solihov",
+      "userPhone": "+998500089912",
+      "items": [
+        {
+          "id": "p1777793201540",
+          "name": "WQ",
+          "price": 1,
+          "quantity": 4
+        }
+      ],
+      "totalPrice": 4,
+      "paymentMethod": "click",
+      "hasScreenshot": true,
+      "id": "ORD-1777793637230",
+      "createdAt": "2026-05-03T07:33:57.230Z",
+      "status": "pending"
+    },
+    {
+      "userId": "super-admin",
+      "userName": "Abdulloh Solihov",
+      "userPhone": "+998500089912",
+      "items": [
+        {
+          "id": "p1777793201540",
+          "name": "WQ",
+          "price": 1,
+          "quantity": 4
+        }
+      ],
+      "totalPrice": 4,
+      "paymentMethod": "click",
+      "hasScreenshot": true,
+      "id": "ORD-1777793635295",
+      "createdAt": "2026-05-03T07:33:55.295Z",
+      "status": "pending"
+    }
+  ],
+  "products": [
+    {
+      "name": "WQ",
+      "price": 1,
+      "category": "mol",
+      "image": "/images/wagyu.png",
+      "description": "",
+      "id": "p1777793201540"
+    }
+  ],
+  "categories": [
+    {
+      "id": "mol",
+      "name": "Mol Go'shti"
+    },
+    {
+      "id": "qoy",
+      "name": "Qo'y Go'shti"
+    }
+  ]
 }

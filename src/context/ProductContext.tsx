@@ -10,18 +10,28 @@ export interface Product {
   description: string;
 }
 
+export interface Category {
+  id: string;
+  name: string;
+}
+
 interface ProductContextType {
   products: Product[];
+  categories: Category[];
   fetchProducts: () => Promise<void>;
+  fetchCategories: () => Promise<void>;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: string, product: Partial<Product>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  addCategory: (name: string) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
 
 export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const fetchProducts = async () => {
     try {
@@ -33,8 +43,19 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch(`${API_URL}/categories`);
+      const data = await res.json();
+      setCategories(data);
+    } catch (err) {
+      console.error('Failed to fetch categories', err);
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
 
   const addProduct = async (product: Omit<Product, 'id'>) => {
@@ -74,8 +95,35 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
     }
   };
 
+  const addCategory = async (name: string) => {
+    try {
+      const res = await fetch(`${API_URL}/categories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      });
+      const newCat = await res.json();
+      setCategories(prev => [...prev, newCat]);
+    } catch (err) {
+      console.error('Failed to add category', err);
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE' });
+      setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err) {
+      console.error('Failed to delete category', err);
+    }
+  };
+
   return (
-    <ProductContext.Provider value={{ products, fetchProducts, addProduct, updateProduct, deleteProduct }}>
+    <ProductContext.Provider value={{ 
+      products, categories, fetchProducts, fetchCategories, 
+      addProduct, updateProduct, deleteProduct,
+      addCategory, deleteCategory
+    }}>
       {children}
     </ProductContext.Provider>
   );

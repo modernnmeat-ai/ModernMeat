@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useInventory, CATEGORY_LABELS, MeatCategory, EntryType } from '../context/InventoryContext';
+import { useInventory, EntryType } from '../context/InventoryContext';
+import { useProducts } from '../context/ProductContext';
 import {
   PackagePlus, PackageMinus, Scale, TrendingDown, TrendingUp,
   Trash2, Calendar, ChevronDown, AlertTriangle, CheckCircle
@@ -9,15 +10,16 @@ const today = new Date().toISOString().slice(0, 10);
 
 export function OmborTab() {
   const { entries, addEntry, deleteEntry, getStock } = useInventory();
+  const { categories } = useProducts();
 
   const [type, setType] = useState<EntryType>('kirim');
-  const [category, setCategory] = useState<MeatCategory>('mol');
+  const [category, setCategory] = useState<string>('');
   const [weight, setWeight] = useState('');
   const [pricePerKg, setPricePerKg] = useState('');
   const [note, setNote] = useState('');
   const [date, setDate] = useState(today);
   const [filterDate, setFilterDate] = useState(today);
-  const [filterCat, setFilterCat] = useState<MeatCategory | 'barchasi'>('barchasi');
+  const [filterCat, setFilterCat] = useState<string>('barchasi');
   const [notif, setNotif] = useState('');
   const [notifType, setNotifType] = useState<'ok' | 'err'>('ok');
 
@@ -31,13 +33,17 @@ export function OmborTab() {
     if (!weight || isNaN(w) || w <= 0) {
       showNotif("To'g'ri og'irlik kiriting (kg).", 'err'); return;
     }
-    const stock = getStock().find(s => s.category === category);
+    if (!category && categories.length > 0) {
+      showNotif("Go'sht turini tanlang", 'err'); return;
+    }
+    const catToUse = category || categories[0]?.id;
+    const stock = getStock(categories).find(s => s.category === catToUse);
     if (type === 'chiqim' && stock && w > stock.remaining) {
       showNotif(`Omborda faqat ${stock.remaining} kg bor! Chiqim ${w} kg dan ko'p bo'la olmaydi.`, 'err');
       return;
     }
     await addEntry({
-      type, category, weight: w,
+      type, category: catToUse, weight: w,
       pricePerKg: pricePerKg ? parseFloat(pricePerKg) : undefined,
       note, date,
     });
@@ -45,7 +51,7 @@ export function OmborTab() {
     showNotif(type === 'kirim' ? `✅ ${w} kg kirim yozildi!` : `📤 ${w} kg chiqim yozildi!`);
   };
 
-  const allStock = getStock();
+  const allStock = getStock(categories);
 
   const filtered = entries.filter(e => {
     const dateOk = filterDate ? e.date === filterDate : true;
@@ -137,18 +143,16 @@ export function OmborTab() {
           <div className="ombor-field">
             <label>Go'sht turi</label>
             <div className="ombor-cat-btns">
-              {(['mol', 'qoy', 'tovuq', 'other'] as MeatCategory[]).map(cat => (
+              {categories.map(cat => (
                 <button
-                  key={cat}
-                  className={`cat-btn ${category === cat ? 'active' : ''}`}
-                  onClick={() => setCategory(cat)}
+                  key={cat.id}
+                  className={`cat-btn ${category === cat.id || (!category && categories[0]?.id === cat.id) ? 'active' : ''}`}
+                  onClick={() => setCategory(cat.id)}
                 >
-                  {CATEGORY_LABELS[cat]}
-                  {cat !== 'other' && (
-                    <span className="cat-remaining">
-                      {(allStock.find(s => s.category === cat)?.remaining ?? 0).toFixed(0)} kg
-                    </span>
-                  )}
+                  {cat.name}
+                  <span className="cat-remaining">
+                    {(allStock.find(s => s.category === cat.id)?.remaining ?? 0).toFixed(0)} kg
+                  </span>
                 </button>
               ))}
             </div>
@@ -252,14 +256,13 @@ export function OmborTab() {
               <div className="ombor-select-wrap">
                 <select
                   value={filterCat}
-                  onChange={e => setFilterCat(e.target.value as MeatCategory | 'barchasi')}
+                  onChange={e => setFilterCat(e.target.value)}
                   className="ombor-input"
                 >
                   <option value="barchasi">Barchasi</option>
-                  <option value="mol">Mol Go'shti</option>
-                  <option value="qoy">Qo'y Go'shti</option>
-                  <option value="tovuq">Tovuq Go'shti</option>
-                  <option value="other">Boshqa</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
                 </select>
                 <ChevronDown size={16} className="select-chevron" />
               </div>
@@ -269,13 +272,13 @@ export function OmborTab() {
           {/* Summary for filtered date */}
           {filterDate && (
             <div className="ombor-day-summary">
-              {(['mol', 'qoy', 'tovuq'] as MeatCategory[]).map(cat => {
-                const dayIn = filtered.filter(e => e.type === 'kirim' && e.category === cat).reduce((s, e) => s + e.weight, 0);
-                const dayOut = filtered.filter(e => e.type === 'chiqim' && e.category === cat).reduce((s, e) => s + e.weight, 0);
+              {categories.map(cat => {
+                const dayIn = filtered.filter(e => e.type === 'kirim' && e.category === cat.id).reduce((s, e) => s + e.weight, 0);
+                const dayOut = filtered.filter(e => e.type === 'chiqim' && e.category === cat.id).reduce((s, e) => s + e.weight, 0);
                 if (dayIn === 0 && dayOut === 0) return null;
                 return (
-                  <div key={cat} className="day-summary-item">
-                    <span className="day-cat">{CATEGORY_LABELS[cat]}</span>
+                  <div key={cat.id} className="day-summary-item">
+                    <span className="day-cat">{cat.name}</span>
                     <span className="day-in">+{dayIn.toFixed(1)} kg</span>
                     <span className="day-out">-{dayOut.toFixed(1)} kg</span>
                   </div>
@@ -302,7 +305,7 @@ export function OmborTab() {
                   </div>
                   <div className="entry-body">
                     <div className="entry-top">
-                      <span className="entry-cat">{CATEGORY_LABELS[e.category]}</span>
+                      <span className="entry-cat">{categories.find(c => c.id === e.category)?.name || e.category}</span>
                       <span className={`entry-type-badge ${e.type}`}>
                         {e.type === 'kirim' ? 'Kirim' : 'Sotuv'}
                       </span>

@@ -20,9 +20,23 @@ const initDB = async () => {
       users: [],
       inventory: [],
       orders: [],
-      products: []
+      products: [],
+      categories: [
+        { id: 'mol', name: "Mol Go'shti" },
+        { id: 'qoy', name: "Qo'y Go'shti" }
+      ]
     };
     await fs.writeJson(DB_FILE, initialData, { spaces: 2 });
+  } else {
+    // Migration for existing DBs
+    const data = await fs.readJson(DB_FILE);
+    if (!data.categories) {
+      data.categories = [
+        { id: 'mol', name: "Mol Go'shti" },
+        { id: 'qoy', name: "Qo'y Go'shti" }
+      ];
+      await fs.writeJson(DB_FILE, data, { spaces: 2 });
+    }
   }
 };
 
@@ -33,6 +47,34 @@ const saveDB = (data) => fs.writeJson(DB_FILE, data, { spaces: 2 });
 
 app.get('/', (req, res) => {
   res.send('ModernMeat Backend is running!');
+});
+
+// CATEGORIES
+app.get('/api/categories', async (req, res) => {
+  const db = await getDB();
+  res.json(db.categories || []);
+});
+
+app.post('/api/categories', async (req, res) => {
+  const db = await getDB();
+  const { name } = req.body;
+  if (!name) return res.status(400).json({ message: 'Name is required' });
+  const newCat = {
+    id: name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+    name
+  };
+  if (!db.categories) db.categories = [];
+  db.categories.push(newCat);
+  await saveDB(db);
+  res.json(newCat);
+});
+
+app.delete('/api/categories/:id', async (req, res) => {
+  const db = await getDB();
+  if (!db.categories) return res.json({ success: true });
+  db.categories = db.categories.filter(c => c.id !== req.params.id);
+  await saveDB(db);
+  res.json({ success: true });
 });
 
 // USERS
@@ -57,23 +99,57 @@ app.post('/api/users/login', async (req, res) => {
   const { phone, password } = req.body;
   const db = await getDB();
 
-  // Admin check (Hardcoded in server for security)
+  // 1. Check Hardcoded Super Admin (Master account)
   const ADMIN_PHONE = '+998500089912';
   const ADMIN_PASS = 'FRONTOZA1976';
 
   if (phone === ADMIN_PHONE && password === ADMIN_PASS) {
     return res.json({
       success: true,
-      user: { id: 'admin', firstName: 'Abdulloh', lastName: 'Solihov', phone: ADMIN_PHONE, isAdmin: true }
+      user: { id: 'super-admin', firstName: 'Abdulloh', lastName: 'Solihov', phone: ADMIN_PHONE, isAdmin: true, isSuperAdmin: true }
     });
   }
 
+  // 2. Check Database Users
   const user = db.users.find(u => u.phone === phone && u.password === password);
   if (user) {
     res.json({ success: true, user });
   } else {
     res.status(401).json({ success: false, message: 'Telefon raqam yoki parol noto\'g\'ri!' });
   }
+});
+
+// Admin management
+app.patch('/api/users/:id/toggle-admin', async (req, res) => {
+  const db = await getDB();
+  const user = db.users.find(u => u.id === req.params.id);
+  if (user) {
+    user.isAdmin = !user.isAdmin;
+    await saveDB(db);
+    res.json({ success: true, user });
+  } else {
+    res.status(404).json({ message: 'User not found' });
+  }
+});
+
+app.post('/api/users/admin-create', async (req, res) => {
+  const { firstName, lastName, phone, password } = req.body;
+  const db = await getDB();
+  if (db.users.find(u => u.phone === phone)) {
+    return res.status(400).json({ success: false, message: 'Bu raqam band!' });
+  }
+  const newUser = { 
+    id: Date.now().toString(), 
+    firstName, 
+    lastName, 
+    phone, 
+    password, 
+    registeredAt: new Date().toISOString(), 
+    isAdmin: true 
+  };
+  db.users.push(newUser);
+  await saveDB(db);
+  res.json({ success: true, user: newUser });
 });
 
 // PRODUCTS

@@ -19,6 +19,8 @@ export interface Order {
   totalPrice: number;
   status: OrderStatus;
   createdAt: string;
+  paymentMethod?: 'naqt' | 'click' | null;
+  hasScreenshot?: boolean;
 }
 
 interface OrderContextType {

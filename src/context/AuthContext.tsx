@@ -7,6 +7,7 @@ export interface User {
   lastName: string;
   phone: string;
   isAdmin: boolean;
+  isSuperAdmin?: boolean;
   registeredAt?: string;
 }
 
@@ -18,6 +19,8 @@ interface AuthContextType {
   register: (firstName: string, lastName: string, phone: string, password: string) => Promise<{ success: boolean; message: string }>;
   logout: () => void;
   getAllUsers: () => User[];
+  toggleAdminStatus: (userId: string) => Promise<boolean>;
+  createAdmin: (firstName: string, lastName: string, phone: string, password: string) => Promise<{ success: boolean; message: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,6 +96,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const toggleAdminStatus = async (userId: string) => {
+    try {
+      const res = await fetch(`${API_URL}/users/${userId}/toggle-admin`, {
+        method: 'PATCH'
+      });
+      if (res.ok) {
+        await fetchUsers();
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+
+  const createAdmin = async (firstName: string, lastName: string, phone: string, password: string) => {
+    try {
+      const res = await fetch(`${API_URL}/users/admin-create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, phone, password })
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchUsers();
+        return { success: true, message: "Yangi admin qo'shildi!" };
+      }
+      return { success: false, message: data.message || 'Xatolik yuz berdi' };
+    } catch (err) {
+      console.error(err);
+      return { success: false, message: 'Serverga ulanishda xatolik!' };
+    }
+  };
+
   const logout = () => {
     setUser(null);
   };
@@ -100,7 +138,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const getAllUsers = () => allUsers;
 
   return (
-    <AuthContext.Provider value={{ user, isLoggedIn: !!user, isAdmin: !!user?.isAdmin, login, register, logout, getAllUsers }}>
+    <AuthContext.Provider value={{ 
+      user, isLoggedIn: !!user, isAdmin: !!user?.isAdmin, 
+      login, register, logout, getAllUsers, toggleAdminStatus, createAdmin 
+    }}>
       {children}
     </AuthContext.Provider>
   );

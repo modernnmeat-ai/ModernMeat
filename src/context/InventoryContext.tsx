@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { API_URL } from '../config';
 
-export type MeatCategory = 'mol' | 'qoy' | 'tovuq' | 'other';
 export type EntryType = 'kirim' | 'chiqim';
 
 export interface InventoryEntry {
   id: string;
   type: EntryType;
-  category: MeatCategory;
+  category: string;
   weight: number;
   pricePerKg?: number;
   note: string;
@@ -17,7 +16,7 @@ export interface InventoryEntry {
 }
 
 export interface StockSummary {
-  category: MeatCategory;
+  category: string;
   label: string;
   totalKirim: number;
   totalChiqim: number;
@@ -28,16 +27,9 @@ interface InventoryContextType {
   entries: InventoryEntry[];
   addEntry: (entry: Omit<InventoryEntry, 'id' | 'createdAt'>) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
-  getStock: () => StockSummary[];
+  getStock: (categories: {id: string, name: string}[]) => StockSummary[];
   getTodayEntries: () => InventoryEntry[];
 }
-
-const CATEGORY_LABELS: Record<MeatCategory, string> = {
-  mol: "Mol Go'shti",
-  qoy: "Qo'y Go'shti",
-  tovuq: "Tovuq Go'shti",
-  other: "Boshqa",
-};
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
@@ -81,15 +73,14 @@ export const InventoryProvider: React.FC<{ children: ReactNode }> = ({ children 
     }
   };
 
-  const getStock = (): StockSummary[] => {
-    const cats: MeatCategory[] = ['mol', 'qoy', 'tovuq', 'other'];
-    return cats.map(cat => {
-      const catEntries = entries.filter(e => e.category === cat);
+  const getStock = (categories: {id: string, name: string}[]): StockSummary[] => {
+    return categories.map(cat => {
+      const catEntries = entries.filter(e => e.category === cat.id);
       const totalKirim = catEntries.filter(e => e.type === 'kirim').reduce((s, e) => s + e.weight, 0);
       const totalChiqim = catEntries.filter(e => e.type === 'chiqim').reduce((s, e) => s + e.weight, 0);
       return {
-        category: cat,
-        label: CATEGORY_LABELS[cat],
+        category: cat.id,
+        label: cat.name,
         totalKirim,
         totalChiqim,
         remaining: totalKirim - totalChiqim,
@@ -114,5 +105,3 @@ export const useInventory = () => {
   if (!ctx) throw new Error('useInventory must be within InventoryProvider');
   return ctx;
 };
-
-export { CATEGORY_LABELS };
