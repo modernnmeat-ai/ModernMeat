@@ -829,10 +829,10 @@ h1, h2, h3, h4, h5, h6 {
 .cart-sidebar {
   position: fixed;
   top: 0;
+  bottom: 0;
   right: -400px;
   width: 100%;
   max-width: 400px;
-  height: 100%;
   background: var(--dark-bg);
   z-index: 1001;
   box-shadow: var(--shadow);
@@ -1707,6 +1707,29 @@ h1, h2, h3, h4, h5, h6 {
 }
 .modal-save:hover { transform: translateY(-1px); }
 
+/* Revenue Modal Specific Styles */
+.revenue-modal {
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.revenue-modal-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #4CAF50;
+  font-family: 'Playfair Display', serif;
+  text-shadow: 0 4px 12px rgba(76,175,80,0.3);
+  word-wrap: break-word;
+}
+.revenue-modal-amount span {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-family: 'Inter', sans-serif;
+  font-weight: 400;
+}
+
 /* Admin Notification */
 .admin-notification {
   position: fixed;
@@ -1748,6 +1771,32 @@ h1, h2, h3, h4, h5, h6 {
   .admin-stats-grid { grid-template-columns: 1fr 1fr; }
   .admin-content { padding: 16px; }
   .admin-topbar { padding: 16px; }
+  .admin-table th, .admin-table td { padding: 8px 6px; font-size: 0.8rem; }
+  .admin-recent-card { padding: 12px; overflow: hidden; }
+  .admin-recent-card .admin-table-wrap {
+    background: transparent;
+    border: none;
+    margin: 0 -12px;
+    padding: 0 12px;
+    border-radius: 0;
+    width: calc(100% + 24px);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-table {
+    min-width: 500px;
+  }
+  
+  /* Compact Cart for Mobile */
+  .cart-header { padding: 16px; }
+  .cart-items { padding: 16px; }
+  .cart-footer { padding: 16px; }
+  .cart-item { gap: 12px; margin-bottom: 16px; }
+  .cart-item img { width: 60px; height: 60px; }
+  .item-details h4 { font-size: 0.9rem; margin-bottom: 2px; }
+  .item-price { font-size: 0.85rem; margin-bottom: 6px; }
+  .quantity-controls { gap: 8px; padding: 2px 6px; }
+  .cart-total { font-size: 1.1rem; margin-bottom: 12px; }
 }
 
 /* ========== REGISTER STEPS BAR ========== */
@@ -2105,7 +2154,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pull-to-refresh-content {
-  will-change: transform;
+  /* removed will-change: transform to prevent breaking position: fixed */
 }
 
 /* Payment Modal */

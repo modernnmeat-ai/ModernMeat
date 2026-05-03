@@ -94,8 +94,7 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({ children }) => {
       <div 
         className="pull-to-refresh-content"
         style={{ 
-          transform: `translateY(${pullDistance}px)`,
-          transition: pullDistance === 0 ? 'transform 0.3s cubic-bezier(0.2, 0, 0, 1)' : 'none'
+          /* No transform applied here to preserve position: fixed for child elements like modals and sidebars */
         }}
       >
         {children}

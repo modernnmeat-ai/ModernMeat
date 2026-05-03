@@ -3,7 +3,7 @@ import { useInventory, EntryType } from '../context/InventoryContext';
 import { useProducts } from '../context/ProductContext';
 import {
   PackagePlus, PackageMinus, Scale, TrendingDown, TrendingUp,
-  Trash2, Calendar, ChevronDown, AlertTriangle, CheckCircle
+  Trash2, Calendar, ChevronDown, AlertTriangle, CheckCircle, X
 } from 'lucide-react';
 
 const today = new Date().toISOString().slice(0, 10);
@@ -22,6 +22,7 @@ export function OmborTab() {
   const [filterCat, setFilterCat] = useState<string>('barchasi');
   const [notif, setNotif] = useState('');
   const [notifType, setNotifType] = useState<'ok' | 'err'>('ok');
+  const [showRevenueModal, setShowRevenueModal] = useState(false);
 
   const showNotif = (msg: string, t: 'ok' | 'err' = 'ok') => {
     setNotif(msg); setNotifType(t);
@@ -101,15 +102,27 @@ export function OmborTab() {
         ))}
 
         {totalRevenue > 0 && (
-          <div className="ombor-stock-card revenue-card">
+          <div 
+            className="ombor-stock-card revenue-card" 
+            onClick={() => setShowRevenueModal(true)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="ombor-stock-label">
               <TrendingUp size={18} /> Jami Daromad
             </div>
-            <div className="ombor-stock-remaining" style={{ color: '#4CAF50' }}>
+            <div 
+              className="ombor-stock-remaining" 
+              style={{ 
+                color: '#4CAF50',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis'
+              }}
+            >
               {totalRevenue.toLocaleString()}
             </div>
             <div className="ombor-stock-meta">
-              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>so'm</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>so'm (kattalashtirish uchun bosing)</span>
             </div>
           </div>
         )}
@@ -335,6 +348,23 @@ export function OmborTab() {
           </div>
         </div>
       </div>
+
+      {showRevenueModal && (
+        <div className="admin-modal-overlay open" onClick={() => setShowRevenueModal(false)}>
+          <div className="admin-modal revenue-modal" onClick={e => e.stopPropagation()}>
+            <div className="admin-modal-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
+              <h3 style={{ color: '#4CAF50' }}>Jami Daromad</h3>
+              <button onClick={() => setShowRevenueModal(false)}><X size={24} /></button>
+            </div>
+            <div className="admin-modal-body" style={{ textAlign: 'center', padding: '40px 20px' }}>
+              <TrendingUp size={64} color="#4CAF50" style={{ marginBottom: '20px', opacity: 0.8 }} />
+              <div className="revenue-modal-amount">
+                {totalRevenue.toLocaleString()} <span>so'm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

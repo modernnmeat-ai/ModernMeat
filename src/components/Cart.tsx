@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useOrders } from '../context/OrderContext';
 import { useNavigate } from 'react-router-dom';
 import { X, Plus, Minus, ShoppingBag, CheckCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function Cart() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, totalPrice, clearCart } = useCart();
@@ -14,6 +14,15 @@ export function Cart() {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'naqt' | 'click' | null>(null);
   const [screenshot, setScreenshot] = useState<File | null>(null);
+  
+  useEffect(() => {
+    if (isCartOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isCartOpen]);
 
   // Temporary random card number for test
   const TEST_CARD_NUMBER = "8600 1234 5678 9012";

@@ -224,30 +224,32 @@ export function AdminPanel() {
             <div className="admin-dashboard-bottom">
               <div className="admin-recent-card">
                 <h3>So'nggi Buyurtmalar</h3>
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Mijoz</th>
-                      <th>Mahsulotlar</th>
-                      <th>Summa</th>
-                      <th>Holat</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders.slice(0, 5).map(o => (
-                      <tr key={o.id}>
-                        <td>{o.userName}</td>
-                        <td>{o.items.map(i => `${i.name} x${i.quantity}`).join(', ')}</td>
-                        <td className="order-price">{o.totalPrice.toLocaleString()} so'm</td>
-                        <td>
-                          <span className={`status-badge status-${o.status}`}>
-                            {o.status === 'completed' ? 'Bajarildi' : o.status === 'pending' ? 'Kutmoqda' : o.status === 'processing' ? 'Jarayonda' : 'Bekor qilindi'}
-                          </span>
-                        </td>
+                <div className="admin-table-wrap">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Mijoz</th>
+                        <th>Mahsulotlar</th>
+                        <th>Summa</th>
+                        <th>Holat</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {orders.slice(0, 5).map(o => (
+                        <tr key={o.id}>
+                          <td>{o.userName}</td>
+                          <td>{o.items.map(i => `${i.name} x${i.quantity}`).join(', ')}</td>
+                          <td className="order-price">{o.totalPrice.toLocaleString()} so'm</td>
+                          <td>
+                            <span className={`status-badge status-${o.status}`}>
+                              {o.status === 'completed' ? 'Bajarildi' : o.status === 'pending' ? 'Kutmoqda' : o.status === 'processing' ? 'Jarayonda' : 'Bekor qilindi'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div className="admin-recent-card">
