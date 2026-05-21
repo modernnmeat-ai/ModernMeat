@@ -27,8 +27,8 @@ export function Footer() {
           </div>
           <div className="footer-col" id="contact">
             <h4>Aloqa</h4>
-            <p>Toshkent shahar, Yunusobod tumani, 19-daha</p>
-            <p>Telefon: +998 90 123 45 67</p>
+            <p>Farxod dehqon bozori. 1chi darvoza (yer osti yo'li) oldida</p>
+            <p>Telefon: +998 95 113 99 88</p>
             <p>Email: modernnmeat@gmail.com</p>
             <p>Ish vaqti: Har kuni 08:00 - 20:00</p>
           </div>
