@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   Flame, Users, Package, ShoppingBag, BarChart3, LogOut,
-  ChevronRight, Edit2, Trash2, Plus, X, CheckCircle, XCircle, Warehouse, Menu
+  ChevronRight, Edit2, Trash2, Plus, X, CheckCircle, XCircle, Warehouse, Menu, UserCheck
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { OmborTab } from '../components/OmborTab';
@@ -13,7 +13,7 @@ import { useProducts, Product } from '../context/ProductContext';
 
 
 
-type AdminTab = 'dashboard' | 'products' | 'users' | 'orders' | 'ombor';
+type AdminTab = 'dashboard' | 'products' | 'users' | 'employees' | 'orders' | 'ombor';
 
 
 
@@ -41,6 +41,8 @@ export function AdminPanel() {
   const { toggleAdminStatus, createAdmin } = useAuth();
 
   const registeredUsers = getAllUsers();
+  const customers = registeredUsers.filter(u => !u.isAdmin && !u.isSuperAdmin);
+  const employees = registeredUsers.filter(u => u.isAdmin || u.isSuperAdmin);
 
   const showNotif = (msg: string) => {
     setNotification(msg);
@@ -159,6 +161,7 @@ export function AdminPanel() {
             { tab: 'dashboard', label: 'Dashboard', icon: <BarChart3 size={20} /> },
             { tab: 'products', label: 'Mahsulotlar', icon: <Package size={20} /> },
             { tab: 'users', label: 'Foydalanuvchilar', icon: <Users size={20} /> },
+            { tab: 'employees', label: 'Ishchilar', icon: <UserCheck size={20} /> },
             { tab: 'orders', label: 'Buyurtmalar', icon: <ShoppingBag size={20} /> },
             { tab: 'ombor', label: 'Ombor', icon: <Warehouse size={20} /> },
           ] as const).map(item => (
@@ -197,6 +200,7 @@ export function AdminPanel() {
               {activeTab === 'dashboard' && 'Dashboard'}
               {activeTab === 'products' && 'Mahsulotlar'}
               {activeTab === 'users' && 'Foydalanuvchilar'}
+              {activeTab === 'employees' && 'Ishchilar'}
               {activeTab === 'orders' && 'Buyurtmalar'}
               {activeTab === 'ombor' && '🏪 Ombor — Kirim / Chiqim'}
             </h1>
@@ -331,13 +335,62 @@ export function AdminPanel() {
         {activeTab === 'users' && (
           <div className="admin-content">
             <div className="admin-actions-bar">
-              <span className="admin-count">{registeredUsers.length} ta foydalanuvchi</span>
+              <span className="admin-count">{customers.length} ta foydalanuvchi</span>
+            </div>
+            {customers.length === 0 ? (
+              <div className="admin-empty-large">Hali hech kim ro'yxatdan o'tmagan</div>
+            ) : (
+              <div className="admin-table-wrap">
+                <table className="admin-table admin-table-full">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Ism Familiya</th>
+                      <th>Telefon</th>
+                      <th>Ro'yxat Sanasi</th>
+                      <th>Amal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.map((u, i) => (
+                      <tr key={u.id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          <strong>{u.firstName} {u.lastName}</strong>
+                        </td>
+                        <td>{u.phone}</td>
+                        <td>{new Date(u.registeredAt || '').toLocaleDateString('uz-UZ')}</td>
+                        <td>
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button 
+                              className="admin-edit-btn"
+                              onClick={() => handleToggleAdmin(u.id)}
+                              style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                            >
+                              Admin qilish
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* EMPLOYEES */}
+        {activeTab === 'employees' && (
+          <div className="admin-content">
+            <div className="admin-actions-bar">
+              <span className="admin-count">{employees.length} ta ishchi</span>
               <button className="admin-add-btn" onClick={() => setShowUserModal(true)}>
                 <Plus size={18} /> Yangi Admin
               </button>
             </div>
-            {registeredUsers.length === 0 ? (
-              <div className="admin-empty-large">Hali hech kim ro'yxatdan o'tmagan</div>
+            {employees.length === 0 ? (
+              <div className="admin-empty-large">Hali hech qanday ishchi qo'shilmagan</div>
             ) : (
               <div className="admin-table-wrap">
                 <table className="admin-table admin-table-full">
@@ -351,7 +404,7 @@ export function AdminPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {registeredUsers.map((u, i) => (
+                    {employees.map((u, i) => (
                       <tr key={u.id}>
                         <td>{i + 1}</td>
                         <td>
