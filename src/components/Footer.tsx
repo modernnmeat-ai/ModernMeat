@@ -29,7 +29,7 @@ export function Footer() {
             <h4>Aloqa</h4>
             <p>Toshkent shahar, Yunusobod tumani, 19-daha</p>
             <p>Telefon: +998 90 123 45 67</p>
-            <p>Email: info@modernmeat.uz</p>
+            <p>Email: modernnmeat@gmail.com</p>
             <p>Ish vaqti: Har kuni 08:00 - 20:00</p>
           </div>
         </div>
