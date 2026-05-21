@@ -2,9 +2,12 @@ import { useEffect } from 'react';
 import { ShoppingCart, Beef, ChefHat, ShieldCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useProducts } from '../context/ProductContext';
 
 export function Home() {
   const { addToCart } = useCart();
+  const { products } = useProducts();
+  const popularProducts = products.slice(0, 3);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -18,7 +21,7 @@ export function Home() {
     document.querySelectorAll('.scroll-anim').forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [products]);
 
   return (
     <>
@@ -83,55 +86,25 @@ export function Home() {
           </div>
           
           <div className="products-grid">
-            <div className="product-card scroll-anim">
-              <div className="product-image-container">
-                <div className="product-badge">Premium</div>
-                <img src="/images/wagyu.png" alt="Wagyu Mol Go'shti" className="product-image" />
-              </div>
-              <div className="product-info">
-                <h3 className="product-title">Wagyu Mol Go'shti</h3>
-                <p className="product-desc">Oliy navli, og'izda eriydigan marmar go'sht. Maxsus taomlar uchun mukammal tanlov.</p>
-                <div className="product-footer">
-                  <span className="product-price">250,000 so'm <span style={{fontSize: '0.9rem', color: 'var(--text-muted)'}}>/ kg</span></span>
-                  <button className="add-to-cart" title="Savatga qo'shish" onClick={() => addToCart({id: 'p1', name: 'Wagyu Mol Go\'shti', price: 250000, category: 'mol', image: '/images/wagyu.png', description: ''})}>
-                    <ShoppingCart size={18} />
-                  </button>
+            {popularProducts.map((product, index) => (
+              <div key={product.id} className={`product-card scroll-anim ${index > 0 ? `delay-${index * 100}` : ''}`}>
+                <div className="product-image-container">
+                  {index === 0 && <div className="product-badge">Premium</div>}
+                  {index === 2 && <div className="product-badge">Yangi</div>}
+                  <img src={product.image} alt={product.name} className="product-image" />
+                </div>
+                <div className="product-info">
+                  <h3 className="product-title">{product.name}</h3>
+                  <p className="product-desc">{product.description}</p>
+                  <div className="product-footer">
+                    <span className="product-price">{product.price.toLocaleString()} so'm <span style={{fontSize: '0.9rem', color: 'var(--text-muted)'}}>/ kg</span></span>
+                    <button className="add-to-cart" title="Savatga qo'shish" onClick={() => addToCart(product)}>
+                      <ShoppingCart size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="product-card scroll-anim delay-100">
-              <div className="product-image-container">
-                <img src="/images/tbone.png" alt="T-Bone Steyk" className="product-image" />
-              </div>
-              <div className="product-info">
-                <h3 className="product-title">T-Bone Steyk (Lahm)</h3>
-                <p className="product-desc">Klassik steyk ixlosmandlari uchun maxsus suyakli lahm. Qalin va sersuv kesim.</p>
-                <div className="product-footer">
-                  <span className="product-price">180,000 so'm <span style={{fontSize: '0.9rem', color: 'var(--text-muted)'}}>/ kg</span></span>
-                  <button className="add-to-cart" title="Savatga qo'shish" onClick={() => addToCart({id: 'p2', name: 'T-Bone Steyk (Lahm)', price: 180000, category: 'mol', image: '/images/tbone.png', description: ''})}>
-                    <ShoppingCart size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="product-card scroll-anim delay-200">
-              <div className="product-image-container">
-                <div className="product-badge">Yangi</div>
-                <img src="/images/lamb.png" alt="Qo'y Qovurg'asi" className="product-image" />
-              </div>
-              <div className="product-info">
-                <h3 className="product-title">Qo'y Qovurg'asi (Kare)</h3>
-                <p className="product-desc">Yumshoq va xushbo'y qo'y go'shti qovurg'asi. Kabob va tandir uchun ajoyib tanlov.</p>
-                <div className="product-footer">
-                  <span className="product-price">140,000 so'm <span style={{fontSize: '0.9rem', color: 'var(--text-muted)'}}>/ kg</span></span>
-                  <button className="add-to-cart" title="Savatga qo'shish" onClick={() => addToCart({id: 'p3', name: 'Qo\'y Qovurg\'asi (Kare)', price: 140000, category: 'qoy', image: '/images/lamb.png', description: ''})}>
-                    <ShoppingCart size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           
           <div style={{ textAlign: 'center', marginTop: '40px' }}>
